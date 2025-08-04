@@ -1,4 +1,4 @@
-## This project is the frontend part of a question-and-answer full-stack sample application. Developed with React, it includes the following features:
+## This project is the frontend part of the question-and-answer full-stack sample application. Developed with React, it includes the following features:
 
 - Component concept
 

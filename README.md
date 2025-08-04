@@ -14,6 +14,10 @@
 
 - Routing operations, useNavigate
 
+- Api calls with Jwt token
+
+- Access token renewal using refresh token
+
 - Material UI: Material Design components
 
 Backend repo of this app: https://github.com/EnginMd/question-answer-service-api 

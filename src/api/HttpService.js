@@ -1,4 +1,4 @@
-import { Logout } from "../Utils/Common"
+import { Logout } from "../utils/Common"
 
 export const PostWithAuth = (url, body) =>
 {

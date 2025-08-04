@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { makeStyles } from 'tss-react/mui';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import { Logout } from '../Utils/Common';
+import { Logout } from '../utils/Common';
 
 
 const useStyles = makeStyles()((theme) =>

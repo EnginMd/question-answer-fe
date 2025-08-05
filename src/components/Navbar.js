@@ -57,7 +57,6 @@ const Navbar = () => {
                 <Link className={classes.link} to="/">Home</Link>
               </Typography>
               <Typography variant="h6" component="div" >
-                {console.log(localStorage.getItem("currentUser"),"currentUser")}
                 {localStorage.getItem("currentUser") == null ?
                   <Link className={classes.link} to={{ pathname: '/auth' }}>Login/Register</Link> :
                   <div>

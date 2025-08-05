@@ -12,12 +12,12 @@ import Typography from '@mui/material/Typography';
 import { lightBlue, red } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import CommentIcon from '@mui/icons-material/Comment';
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { makeStyles } from 'tss-react/mui';
 import Container from '@mui/material/Container';
 import Comment from './Comment';
 import CommentForm from './CommentForm';
-import { DeleteWithAuth2 } from '../api/HttpService';
+import { ApiCallWithAuth } from '../api/HttpService';
 
 const useStyles = makeStyles()((theme) =>
 {
@@ -39,20 +39,6 @@ const ExpandMore = styled((props) =>
     transition: theme.transitions.create('transform', {
         duration: theme.transitions.duration.shortest,
     }),
-    // variants: [
-    //     {
-    //         props: ({ expand }) => !expand,
-    //         style: {
-    //             transform: 'rotate(0deg)',
-    //         },
-    //     },
-    //     {
-    //         props: ({ expand }) => !!expand,
-    //         style: {
-    //             transform: 'rotate(180deg)',
-    //         },
-    //     },
-    // ],
 }));
 
 const Post = (props) =>
@@ -66,6 +52,7 @@ const Post = (props) =>
     const [likeCount, setLikeCount] = useState(likes.length);
     const [likeId, setLikeId] = useState();
     const [refresh, setRefresh] = useState(false);
+    const navigate = useNavigate();
     const userNotLoggedIn = localStorage.getItem("currentUser") == null ? true : false
 
     const setRefreshComment = () =>
@@ -95,6 +82,7 @@ const Post = (props) =>
     const refreshComments = async () =>
     {
         setIsLoaded(false);
+        
         await fetch(`/comments?postId=${postId}`)
             .then(res => res.json())
             .then((data) =>
@@ -114,65 +102,37 @@ const Post = (props) =>
 
     const saveLike = async() =>
     {
-        await fetch("/likes", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token")
-            },
-            body: JSON.stringify({
-                postId: postId,
-                userId: localStorage.getItem("currentUser"),
-            })
-        })
-            .then((res) => res.json())
-            .then(data =>
-            {
-                if (data.id)
-                {
-                    setLikeId(data.id);
-                    setLikeCount(likeCount + 1);
-                }
-            })
-            .catch((err) => console.log(err));
+        const body =  JSON.stringify({
+            postId: postId,
+            userId: localStorage.getItem("currentUser")
+        });
+
+        const [res, data, logout] = await ApiCallWithAuth("/likes", "POST", body)
+
+        if (logout)
+        {
+            navigate("/auth");
+        }
+        else if (data.id)
+        {
+            setLikeId(data.id);
+            setLikeCount(likeCount + 1);
+        }
     }
 
     const deleteLike = async() =>
     {
-        // await fetch(`/likes/${likeId}`, {
-        //     method: "DELETE",
-        //     headers: {
-        //         "Authorization": localStorage.getItem("token")
-        //     }
-        // })
-        //     .then((res) =>
-        //     {
-        //         if (res.status == 401)
-        //         {
-        //             deleteLike();
-        //         }
-        //         else if (res.status == 200) 
-        //         {
-        //             setLikeCount(likeCount - 1);
-        //             setLikeId(null);
-        //         }
-        //     });
-        
-        const [res, data] = await DeleteWithAuth2(`/likes/${likeId}`)
+        const [res, data, logout] = await ApiCallWithAuth(`/likes/${likeId}`, "DELETE", null)
 
-        if (res != undefined && res.status == 200)
+        if (logout)
+        {
+            navigate("/auth");  
+        }
+        else if (res != undefined && res.status == 200)
         {
             setLikeCount(likeCount - 1);
             setLikeId(null);
         }
-            // .then((res) =>
-            // {
-            //     if (res.status == 200) 
-            //     {
-            //         setLikeCount(likeCount - 1);
-            //         setLikeId(null);
-            //     }
-            // });
     }
 
     useEffect(() =>

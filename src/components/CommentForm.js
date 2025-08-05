@@ -4,8 +4,9 @@ import CardContent from '@mui/material/CardContent';
 import InputAdornment from '@mui/material/InputAdornment';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
+import { ApiCallWithAuth } from '../api/HttpService';
 
 const useStyles = makeStyles()((theme) =>
 {
@@ -35,23 +36,22 @@ const CommentForm = (props) =>
     const { classes } = useStyles();
     const { userId, userName, postId, setRefreshComment } = props;
     const [text, setText] = useState("");
+    const navigate = useNavigate();
 
-    const handleSubmit = () =>
+    const handleSubmit = async () =>
     {
-        fetch("/comments", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token")
-            },
-            body: JSON.stringify({
-                postId: postId,
-                userId: userId,
-                text: text
-            })
-        })
-            .then((res) => res.json())
-            .catch((err) => console.log(err, "error"));
+        const body = JSON.stringify({
+            postId: postId,
+            userId: userId,
+            text: text
+        });
+        
+        const [res, data, logout] = await ApiCallWithAuth("/comments", "POST", body);
+                
+        if (logout)
+        {
+            navigate("/auth");
+        }
 
         setText("");
         setRefreshComment();

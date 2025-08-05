@@ -7,13 +7,14 @@ import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { lightBlue, red } from '@mui/material/colors';
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { makeStyles } from 'tss-react/mui';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { ApiCallWithAuth } from '../api/HttpService';
 
 const useStyles = makeStyles()((theme) =>
 {
@@ -58,23 +59,22 @@ const PostForm = (props) =>
     const [text, setText] = useState("");
     const [title, setTitle] = useState("");
     const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const navigate = useNavigate();
 
-    const handleSubmit = () =>
+    const handleSubmit = async () =>
     {
-        fetch("/posts", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token")
-            },
-            body: JSON.stringify({
-                title: title,
-                userId: userId,
-                text: text
-            })
-        })
-            .then((res) => res.json())
-            .catch((err) => console.log(err, "error"));
+        const body = JSON.stringify({
+            title: title,   
+            userId: userId,
+            text: text
+        });
+
+        const [res, data, logout] = await ApiCallWithAuth("/posts", "POST", body);
+        
+        if (logout)
+        {
+            navigate("/auth");
+        }
         
         setTitle("");
         setText("");
